@@ -6,6 +6,7 @@ import pygame
 SCREEN_RECT = pygame.Rect(0, 0, 480, 700)
 FRAME_PER_SEC = 60
 CREATE_ENEMY_EVENT = pygame.USEREVENT       # 敌机出现定时器常量
+HERO_FIRE_EVENT = pygame.USEREVENT + 1
 
 
 # 敌机创建
@@ -50,3 +51,37 @@ class Enemy(GameSprite):
     def __del__(self):
         print("Enemy has been killed %s" % self.rect)
 
+
+class Hero(GameSprite):
+    def __init__(self):
+        super(Hero, self).__init__("me1.png", 0)
+        self.rect.centerx = SCREEN_RECT.centerx
+        self.rect.bottom = SCREEN_RECT.bottom - 120
+        self.bullet_group = pygame.sprite.Group()
+
+    def update(self, *args):
+        self.rect.x += self.speed
+        if self.rect.left < 0:
+            self.rect.left = 0
+        elif self.rect.right > SCREEN_RECT.right:
+            self.rect.right = SCREEN_RECT.right
+
+    def fire(self):
+        for i in (0, 1, 2):
+            bullet = Bullet()
+            bullet.rect.bottom = self.rect.y - i * 20
+            bullet.rect.centerx = self.rect.centerx
+            self.bullet_group.add(bullet)
+
+
+class Bullet(GameSprite):
+    def __init__(self):
+        super(Bullet, self).__init__("bullet1.png", -2)
+
+    def update(self, *args):
+        super(Bullet, self).update()
+        if self.rect.bottom < 0:
+            self.kill()
+
+    def __del__(self):
+        print("Bullet has been destroyed %s" % self.rect)
